@@ -1,4 +1,5 @@
 import axios from "axios";
+import { saveToDB } from "../services/helpers/indexedDb";
 
 export const setStateUser = (state_obj) => ({
     type: `SET_STATE_USER`,
@@ -34,13 +35,20 @@ export const fetchCommon = (item) => {
                 };
                 return result;
             }, {})
-            console.log({data})
+            
             dispatch({
                 type: 'FETCH_COMMON_SUCCESS', payload: {
                     item: item,
                     data: data
                 }
             });
+
+            console.log({ item })
+
+            saveToDB(item, item, {
+                timestamp: new Date().getTime() + 12 * 60 * 60 * 10000,
+                data: data
+            })
 
         } catch (error) {
             dispatch({ type: 'FETCH_COMMON_FAILURE', payload: error.message });
@@ -127,6 +135,11 @@ export const fetchLeagues = (user_id) => {
                 console.log(parsed_leagues)
 
                 dispatch({ type: 'FETCH_LEAGUES_SUCCESS', payload: parsed_leagues.flat() });
+
+                saveToDB(user_id, 'leagues', {
+                    timestamp: new Date().getTime() +15* 60 * 10000,
+                    data: parsed_leagues.flat()
+                })
 
             } else {
                 dispatch({ type: 'FETCH_LEAGUES_FAILURE', payload: 'Failed to fetch user leagues' });

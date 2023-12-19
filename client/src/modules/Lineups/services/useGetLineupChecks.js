@@ -5,7 +5,7 @@ import { setStateUser } from "../../COMMON/redux/actions";
 import { fetchCommon } from "../../COMMON/redux/actions";
 import { fetchMatchups } from "../redux/actions";
 import { getRecordDict } from "./helpers/getRecordDict";
-
+import { checkIndexedDB } from "../../COMMON/services/helpers/indexedDb";
 
 const useGetLineupChecks = () => {
     const dispatch = useDispatch();
@@ -132,8 +132,8 @@ const useGetLineupChecks = () => {
 
             setTimeout(() => {
                 fetchProjectionInterval = setInterval(() => {
-                    dispatch(fetchCommon('schedule'))
-                    dispatch(fetchCommon('projections'))
+                  //  dispatch(fetchCommon('schedule'))
+                   // dispatch(fetchCommon('projections'))
                 }, 1 * 60 * 1000)
             }, delay)
 
