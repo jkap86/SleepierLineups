@@ -42,7 +42,18 @@ exports.find = async (req, res, app) => {
                         && l.rosters?.length === 0
                     ) || (
                         app.get('state')?.week >= l.settings.playoff_week_start
-                        && !(l.settings.winners_bracket?.length > 0)
+                        && (
+
+                            !l.settings.winners_bracket
+                            || !(l.settings.winners_bracket?.length > 0)
+                            || (
+                                !parseInt(l.settings.winners_bracket
+                                    .find(wb => wb.r === app.get('state').week - l.settings.playoff_week_start + 1)?.t1)
+                                || !parseInt(l.settings.winners_bracket
+                                    .find(wb => wb.r === app.get('state').week - l.settings.playoff_week_start + 1)?.t2)
+
+                            )
+                        )
                     )
             )
 

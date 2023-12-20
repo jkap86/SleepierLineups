@@ -16,10 +16,21 @@ const RecordsHeader = () => {
 
     const projectedRecord = week >= state.week
         ? filterLeagues((leagues || []), type1, type2)
-            ?.filter(l => !playoffs || (
-                state.week >= l.settings.playoff_week_start
-                && l.settings.playoff_teams >= l.userRoster.rank
-            ))
+        ?.filter(l => !playoffs || (
+            l.settings.winners_bracket
+                .find(
+                    wb => (wb.r === (state.week - l.settings.playoff_week_start + 1))
+                        && (
+                            wb.t1 === l.userRoster.roster_id
+                            || wb.t2 === l.userRoster.roster_id
+                        )
+                        && (
+                            !wb.p
+                            || wb.p === 1
+                        )
+                )
+
+        ))
             .reduce((acc, cur) => {
                 const lc_league = lineupChecks[week]?.[hash]?.[cur.league_id]
 

@@ -138,7 +138,7 @@ export const syncLeague = (league_id, user_id, username, week) => {
                 week: week
             })
             console.log(updated_league.data)
-            const hash = `${state.lineups.includeTaxi}-${state.lineups.includeLocked}`;
+            const hash = `${state.lineups.includeTaxi}-${true}`;
             const lineupChecks = state.lineups.lineupChecks;
 
             const userRoster = updated_league.data.rosters
@@ -193,7 +193,7 @@ export const syncLeague = (league_id, user_id, username, week) => {
             }
 
         } catch (error) {
-            console.error(error.message)
+            console.error(error)
             dispatch({ type: 'SYNC_LEAGUES_FAILURE' })
         }
 

@@ -215,22 +215,18 @@ const LineupChecks = ({ secondaryTable }) => {
     const lineups_body = filterLeagues(leagues, type1, type2)
         ?.filter(l => !playoffs || (
             l.settings.winners_bracket
-                .find(wb => wb.r === state.week - l.settings.playoff_week_start + 1 && wb.t1 && wb.t2)
+                .find(
+                    wb => (wb.r === (state.week - l.settings.playoff_week_start + 1))
+                        && (
+                            wb.t1 === l.userRoster.roster_id
+                            || wb.t2 === l.userRoster.roster_id
+                        )
+                        && (
+                            !wb.p
+                            || wb.p === 1
+                        )
+                )
 
-                ? l.settings.winners_bracket
-                    .filter(wb => wb.r === state.week - l.settings.playoff_week_start + 1)
-                    .map(wb => [wb.t1, wb.t2])
-                    .flat()
-                    .includes(l.userRoster.roster_id)
-                : l.settings.winners_bracket
-                    .filter(wb => (
-                        state.week === l.settings.playoff_week_start
-                            ? l.settings.playoff_teams >= l.userRoster.rank
-                            : wb.r === state.week - l.settings.playoff_week_start
-                    ))
-                    .map(wb => [wb.t1, wb.t2])
-                    .flat()
-                    .includes(l.userRoster.roster_id)
         ))
         ?.filter(l => !searched.id || searched.id === l.league_id)
         ?.map(league => {
