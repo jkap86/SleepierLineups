@@ -44,9 +44,9 @@ function start() {
     require('./app/routes/main.routes')(app);
     require('./app/routes/user.routes')(app);
     require('./app/routes/league.routes')(app);
-    require('./app/routes/trade.routes')(app);
-    require('./app/routes/ringOfFire.routes')(app);
-    require('./app/routes/logs.routes')(app)
+   // require('./app/routes/trade.routes')(app);
+   // require('./app/routes/ringOfFire.routes')(app);
+    //require('./app/routes/logs.routes')(app)
 
     app.get('*', async (req, res) => {
         res.sendFile(path.join(__dirname, '../client/build/index.html'));
@@ -67,14 +67,14 @@ function start() {
             });
     });
 
-    const PORT = process.env.PORT || 5000;
+    const PORT = process.env.PORT || 5001;
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}.`);
 
         require('./app/backgroundTasks/dailyUpdate')(app);
-        require('./app/backgroundTasks/findMostLeagus')(app)
+        // require('./app/backgroundTasks/findMostLeagus')(app)
         require('./app/backgroundTasks/getProjections')(app)
-        require('./app/backgroundTasks/getPlayerValues')(app)
+        // require('./app/backgroundTasks/getPlayerValues')(app)
     });
 
 }
