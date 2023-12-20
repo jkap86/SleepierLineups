@@ -35,7 +35,7 @@ export const fetchCommon = (item) => {
                 };
                 return result;
             }, {})
-            
+
             dispatch({
                 type: 'FETCH_COMMON_SUCCESS', payload: {
                     item: item,
@@ -132,15 +132,17 @@ export const fetchLeagues = (user_id) => {
                 } catch (error) {
                     console.log(error)
                 }
-                console.log(parsed_leagues)
 
-                dispatch({ type: 'FETCH_LEAGUES_SUCCESS', payload: parsed_leagues.flat() });
+                const data = parsed_leagues.flat()
 
-                saveToDB(user_id, 'leagues', {
-                    timestamp: new Date().getTime() +15* 60 * 10000,
-                    data: parsed_leagues.flat()
-                })
+                dispatch({ type: 'FETCH_LEAGUES_SUCCESS', payload: data });
 
+                if (!data.find(league => league.error)) {
+                    saveToDB(user_id, 'leagues', {
+                        timestamp: new Date().getTime() + 15 * 60 * 10000,
+                        data: data
+                    })
+                }
             } else {
                 dispatch({ type: 'FETCH_LEAGUES_FAILURE', payload: 'Failed to fetch user leagues' });
             }

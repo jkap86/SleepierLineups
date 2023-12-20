@@ -34,57 +34,64 @@ module.exports = async (app) => {
                 : total_breakdown;
         }
 
+        const projections_json = fs.readFileSync('./projections.json', 'utf-8')
+
         const limit = new Date().getMinutes() < 15
             ? 19
             : week + 1
 
-        for (let i = week; i < limit; i++) {
-            const projections_json = fs.readFileSync('./projections.json', 'utf-8')
+        const projections = JSON.parse(projections_json);
 
-            const projections = JSON.parse(projections_json).filter(p => p.week !== i);
-
-            const projections_to_update = JSON.parse(projections_json).filter(p => p.week === i);
-
-            const updated_projections = []
-            try {
-                for (const position of ['QB', 'RB', 'WR', 'TE']) {
-                    const projections_week = await axios.get(`https://api.sleeper.com/projections/nfl/${season}/${i}?season_type=regular&position[]=${position}&order_by=ppr`)
+        for (let i = 1; i < limit; i++) {
+            console.log({ WEEK: i })
+            if (i >= week || !JSON.parse(projections_json).find(p => p.week === i)) {
 
 
 
-                    projections_week.data
-                        .forEach(pw => {
-                            const projection_object = projections_to_update.find(p => p.player_id === pw.player_id)
+                const projections_to_update = JSON.parse(projections_json).filter(p => p.week === i);
 
-                            if (projection_object) {
-                                updated_projections.push({
-                                    ...projection_object,
-                                    projection: pw.stats || {}
-                                })
-                            } else {
-                                updated_projections.push({
-                                    week: i,
-                                    player_id: pw.player_id,
-                                    injury_status: pw.player.injury_status,
-                                    projection: pw.stats,
-                                })
-                            }
-                        })
+                const updated_projections = []
+                try {
+                    for (const position of ['QB', 'RB', 'WR', 'TE']) {
+                        const projections_week = await axios.get(`https://api.sleeper.com/projections/nfl/${season}/${i}?season_type=regular&position[]=${position}&order_by=ppr`)
+
+
+
+                        projections_week.data
+                            .forEach(pw => {
+                                const projection_object = projections_to_update.find(p => p.player_id === pw.player_id)
+
+                                if (projection_object) {
+                                    updated_projections.push({
+                                        ...projection_object,
+                                        projection: pw.stats || {}
+                                    })
+                                } else {
+                                    updated_projections.push({
+                                        week: i,
+                                        player_id: pw.player_id,
+                                        injury_status: pw.player.injury_status,
+                                        projection: pw.stats,
+                                    })
+                                }
+                            })
+                    }
+
+
+                    console.log(`Projections updated for Week ${i}`)
+                } catch (err) {
+
+                    console.log(err.message + ` week $${i}`)
                 }
+                console.log({ [i]: updated_projections.length })
+
+                projections.push(...updated_projections)
 
 
-                console.log(`Projections updated for Week ${i}`)
-            } catch (err) {
-
-                console.log(err.message + ` week $${i}`)
             }
-            console.log({ [i]: updated_projections.length })
-
-            projections.push(...updated_projections)
-
-            console.log('Projections Update Complete')
-            fs.writeFileSync('./projections.json', JSON.stringify(projections))
         }
+        console.log('Projections Update Complete')
+        fs.writeFileSync('./projections.json', JSON.stringify(projections))
     }
 
     if (process.env.HEROKU) {

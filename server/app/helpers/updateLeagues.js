@@ -24,13 +24,20 @@ const updateBatchedLeagues = async (leagues, display_week) => {
     return results;
 }
 
-const updatedLeague = async (league_to_update) => {
+const updatedLeague = async (league_to_update, display_week) => {
     try {
         const league = await axios.get(`https://api.sleeper.app/v1/league/${league_to_update.league_id}`)
         const users = await axios.get(`https://api.sleeper.app/v1/league/${league_to_update.league_id}/users`)
         const rosters = await axios.get(`https://api.sleeper.app/v1/league/${league_to_update.league_id}/rosters`)
         const drafts = await axios.get(`https://api.sleeper.app/v1/league/${league_to_update.league_id}/drafts`)
         const traded_picks = await axios.get(`https://api.sleeper.app/v1/league/${league_to_update.league_id}/traded_picks`)
+
+        let winners_bracket;
+
+        if (league.data.settings.playoff_week_start > 0 && display_week >= league.data.settings.playoff_week_start) {
+            winners_bracket = await axios.get(`https://api.sleeper.app/v1/league/${league_to_update.league_id}/winners_bracket`)
+
+        }
 
 
         const draft_picks = (
@@ -87,7 +94,8 @@ const updatedLeague = async (league_to_update) => {
 
         const settings = {
             ...league.data.settings,
-            status: league.data.status
+            status: league.data.status,
+            winners_bracket: winners_bracket?.data || []
         }
 
         const users_w_rosters = [...users.data]

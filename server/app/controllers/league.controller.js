@@ -5,7 +5,7 @@ const League = db.leagues;
 const axios = require('../api/axiosInstance');
 const JSONStream = require('JSONStream');
 
-exports.find = async (req, res) => {
+exports.find = async (req, res, app) => {
     const { updateBatchedLeagues } = require('../helpers/updateLeagues');
 
     const user_id = req.query.user_id;
@@ -34,7 +34,17 @@ exports.find = async (req, res) => {
 
         const leagues_to_add = leagues.filter(l => !leagues_db?.find(l_db => l.league_id === l_db.league_id))
 
-        const leagues_to_update = leagues_db.filter(l => l.updatedAt < cutoff || (Array.isArray(l.rosters) && l.rosters?.length === 0))
+        const leagues_to_update = leagues_db
+            .filter(
+                l => l.updatedAt < cutoff
+                    || (
+                        Array.isArray(l.rosters)
+                        && l.rosters?.length === 0
+                    ) || (
+                        app.get('state')?.week >= l.settings.playoff_week_start
+                        && !(l.settings.winners_bracket?.length > 0)
+                    )
+            )
 
         const leagues_up_to_date = leagues_db.filter(l => !leagues_to_update.find(l2 => l.league_id === l2.league_id))
 
@@ -49,7 +59,7 @@ exports.find = async (req, res) => {
     const processLeaguesStream = async (leagues, stream) => {
         const [leagues_to_add, leagues_to_update, leagues_up_to_date] = await splitLeagues(leagues)
 
-        const updated_leagues = await updateBatchedLeagues([leagues_to_update, leagues_to_add].flat())
+        const updated_leagues = await updateBatchedLeagues([leagues_to_update, leagues_to_add].flat(), app.get('state')?.week)
 
         const user_data = []
         const user_league_data = []
@@ -204,26 +214,28 @@ const updateLeagueMatchups = async (league_matchup, display_week) => {
                 console.log(err.message)
             }
         }
-        const updated_league = {
-            league_id: league_matchup.league_id,
-            rosters: updated_rosters,
-            ...updated_league_matchups
-        }
+
+        let updated_settings;
 
         if (matchups_final.length > 0) {
-            const updated_settings = {
+            updated_settings = {
                 ...league_matchup.settings,
                 matchups_final: Array.from(new Set([...league_matchup.settings.matchups_final || [], ...matchups_final]))
             }
 
-            updated_league.settings = updated_settings
         } else if (current_matchups_update) {
-            const updated_settings = {
+            updated_settings = {
                 ...league_matchup.settings,
                 current_matchups_update: current_matchups_update
             }
 
-            updated_league.settings = updated_settings
+
+        }
+        const updated_league = {
+            league_id: league_matchup.league_id,
+            rosters: updated_rosters,
+            settings: updated_settings,
+            ...updated_league_matchups
         }
 
         await League.upsert({ ...updated_league })
@@ -267,10 +279,10 @@ exports.matchups = async (req, res) => {
     res.send(updated_matchups)
 }
 
-exports.sync = async (req, res) => {
+exports.sync = async (req, res, app) => {
     const { updateBatchedLeagues } = require('../helpers/updateLeagues');
 
-    const updated_league = await updateBatchedLeagues([{ league_id: req.body.league_id }])
+    const updated_league = await updateBatchedLeagues([{ league_id: req.body.league_id }], app.get('state')?.week)
 
     const matchups_week = await axios.get(`https://api.sleeper.app/v1/league/${req.body.league_id}/matchups/${req.body.week}?nocache=${Date.now()}`)
 

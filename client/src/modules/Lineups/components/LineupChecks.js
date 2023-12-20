@@ -214,8 +214,23 @@ const LineupChecks = ({ secondaryTable }) => {
 
     const lineups_body = filterLeagues(leagues, type1, type2)
         ?.filter(l => !playoffs || (
-            state.week >= l.settings.playoff_week_start
-            && l.settings.playoff_teams >= l.userRoster.rank
+            l.settings.winners_bracket
+                .find(wb => wb.r === state.week - l.settings.playoff_week_start + 1 && wb.t1 && wb.t2)
+
+                ? l.settings.winners_bracket
+                    .filter(wb => wb.r === state.week - l.settings.playoff_week_start + 1)
+                    .map(wb => [wb.t1, wb.t2])
+                    .flat()
+                    .includes(l.userRoster.roster_id)
+                : l.settings.winners_bracket
+                    .filter(wb => (
+                        state.week === l.settings.playoff_week_start
+                            ? l.settings.playoff_teams >= l.userRoster.rank
+                            : wb.r === state.week - l.settings.playoff_week_start
+                    ))
+                    .map(wb => [wb.t1, wb.t2])
+                    .flat()
+                    .includes(l.userRoster.roster_id)
         ))
         ?.filter(l => !searched.id || searched.id === l.league_id)
         ?.map(league => {
@@ -474,27 +489,23 @@ const LineupChecks = ({ secondaryTable }) => {
                                 ...getColumnValue(column4, matchup_user, lineup_check_user, league, proj_score_user_optimal, proj_score_user_actual, proj_score_opp_optimal, proj_score_opp_actual, proj_median, projections, week, opp_roster, state)
                             }
                         ],
-                        secondary_table: matchup_user?.matchup_id
-                            ? secondaryTable({
-                                league,
-                                matchup_user,
-                                matchup_opp,
-                                lineup_check: lineup_check_user,
-                                lineup_check_opp,
-                                optimal_lineup,
-                                optimal_lineup_opp,
-                                players_projections,
-                                proj_score_user_actual,
-                                proj_score_user_optimal,
-                                proj_score_opp_actual,
-                                proj_score_opp_optimal,
-                                opp_username: opp_roster?.username || 'Orphan',
-                                opp_avatar: opp_roster?.avatar,
-                                proj_median
-                            })
-                            : <h3>
-                                No Matchup
-                            </h3>
+                        secondary_table: secondaryTable({
+                            league,
+                            matchup_user,
+                            matchup_opp,
+                            lineup_check: lineup_check_user,
+                            lineup_check_opp,
+                            optimal_lineup,
+                            optimal_lineup_opp,
+                            players_projections,
+                            proj_score_user_actual,
+                            proj_score_user_optimal,
+                            proj_score_opp_actual,
+                            proj_score_opp_optimal,
+                            opp_username: opp_roster?.username || 'Orphan',
+                            opp_avatar: opp_roster?.avatar,
+                            proj_median
+                        })
                     }
             } else {
                 console.log('BEFORE')
