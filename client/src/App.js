@@ -16,7 +16,13 @@ const Pool = lazy(() => import('./modules/Pool'));
 function App() {
   return (
     <div className="App">
-      <Layout display={<Lineups />} />
+      <BrowserRouter basename='/lineups'>
+        <Suspense fallback={<LoadingIcon />}>
+          <Routes>
+            <Route path='/:username' element={<Layout display={<Lineups />} />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
     </div>
   );
 }
