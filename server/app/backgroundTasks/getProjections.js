@@ -105,11 +105,11 @@ module.exports = async (app) => {
                 if (month > 5 && state && !app.get('syncing')) {
                     try {
                         await getProjections(state.season, state.week)
-/*
+
                         setTimeout(async () => {
                             await getStats(state.season, state.week)
                         }, 3000)
-*/
+
                     } catch (error) {
                         console.log(error)
                     }
