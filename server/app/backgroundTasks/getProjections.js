@@ -102,7 +102,7 @@ module.exports = async (app) => {
             setTimeout(async () => {
                 const month = new Date().getMonth()
                 const state = app.get('state')
-                if (month > 5 && state && !app.get('syncing')) {
+                if (month > 5 && state) {
                     try {
                         await getProjections(state.season, state.week)
 
@@ -121,7 +121,7 @@ module.exports = async (app) => {
             setInterval(async () => {
                 const month = new Date().getMonth();
                 const state = app.get('state')
-                if (month > 5 && state) {
+                if (month > 5 && state && !app.get('syncing')) {
                     await getProjections(state.league_season, state.display_week)
                 }
             }, 15 * 60 * 1000)
