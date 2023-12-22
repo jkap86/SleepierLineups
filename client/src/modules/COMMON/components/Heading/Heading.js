@@ -14,7 +14,7 @@ const Heading = () => {
     const { isLoadingLeagues, leagues, user_id, avatar, username, type1, type2 } = useSelector(state => state.user);
     const { state } = useSelector(state => state.common);
 
-    const navTab = location.pathname.split('/')[2]
+    const navTab = location.pathname.split('/')[1]
 
     useEffect(() => {
         localStorage.setItem('navTab', navTab)
