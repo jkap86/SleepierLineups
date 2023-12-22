@@ -14,7 +14,7 @@ const Heading = () => {
     const { isLoadingLeagues, leagues, user_id, avatar, username, type1, type2 } = useSelector(state => state.user);
     const { state } = useSelector(state => state.common);
 
-    const navTab = location.pathname.split('/')[1]
+    const navTab = 'lineups';
 
     useEffect(() => {
         localStorage.setItem('navTab', navTab)
@@ -27,7 +27,7 @@ const Heading = () => {
     return !user_id ? '' : <>
         <a
             className="home"
-            onChange={
+            onClick={
                 (e) => window.location.href = `${window.location.protocol}//${window.location.hostname}`
             }
         >
