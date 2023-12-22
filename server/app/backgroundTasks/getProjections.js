@@ -107,7 +107,7 @@ module.exports = async (app) => {
                         await getProjections(state.season, state.week)
 
                         setTimeout(async () => {
-                            await getStats(state.season, state.week)
+                            await getStats(state.season, state.week, app)
                         }, 3000)
 
                     } catch (error) {
