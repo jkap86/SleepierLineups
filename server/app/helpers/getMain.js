@@ -52,7 +52,9 @@ const getState = async (app) => {
     app.set('state', state.data, 0)
 }
 
-const getSchedule = async (state, boot = false) => {
+const getSchedule = async (app, boot = false) => {
+    const state = app.get('state');
+
     console.log('Updating Schedule on ' + new Date())
 
     try {
@@ -105,7 +107,7 @@ const getSchedule = async (state, boot = false) => {
 
 
         if (games_in_progress?.kickoff || boot) {
-            await getStats(state.season, state.week)
+            await getStats(state.season, state.week, app)
 
             const sec = new Date().getSeconds()
 
@@ -138,14 +140,14 @@ const getSchedule = async (state, boot = false) => {
                 `
         )
         setTimeout(() => {
-            getSchedule(state)
+            getSchedule(app)
         }, delay)
 
 
     } catch (err) {
 
         setTimeout(() => {
-            getSchedule(state)
+            getSchedule(app)
         }, 5 * 60 * 1000)
 
         console.log(err.message)

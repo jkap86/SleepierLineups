@@ -102,14 +102,14 @@ module.exports = async (app) => {
             setTimeout(async () => {
                 const month = new Date().getMonth()
                 const state = app.get('state')
-                if (month > 5 && state) {
+                if (month > 5 && state && !app.get('syncing')) {
                     try {
                         await getProjections(state.season, state.week)
-
+/*
                         setTimeout(async () => {
                             await getStats(state.season, state.week)
                         }, 3000)
-
+*/
                     } catch (error) {
                         console.log(error)
                     }

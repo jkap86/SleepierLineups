@@ -2,8 +2,9 @@ const axios = require("../api/axiosInstance");
 const fs = require('fs');
 
 
-const getStats = async (season, week) => {
-
+const getStats = async (season, week, app) => {
+    
+    app.set('syncing', true);
 
     for (let i = week; i <= week; i++) {
         const projections_json = fs.readFileSync('./projections.json', 'utf-8')
@@ -53,6 +54,8 @@ const getStats = async (season, week) => {
             console.log(error.message)
         }
     }
+
+    app.set('syncing', false);
 }
 
 module.exports = {
