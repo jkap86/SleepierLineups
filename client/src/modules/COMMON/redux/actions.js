@@ -20,7 +20,7 @@ export const fetchCommon = (item) => {
         dispatch({ type: 'FETCH_COMMON_START', payload: { item: item } });
 
         try {
-            const main = await axios.get(`/lineups/main/${item}`);
+            const main = await axios.get(`/main/${item}`);
 
             const data = item !== 'projections' ? main.data[0] : main.data[0].reduce((result, item) => {
                 const { week, player_id, injury_status, ...stats } = item;
